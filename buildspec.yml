@@ -1,0 +1,23 @@
+
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: eu-west-1
+    AWS_ACCESS_KEY_ID: "AKIAVDGBSQPVCPKFNDTC"
+    TF_IN_AUTOMATION: "true"
+  parameter-store:
+    AWS_SECRET_ACCESS_KEY: "codebuild-worker"
+
+phases:
+  install:
+    commands:
+    - apt-get update -qq -y >/dev/null 2>&1
+    - apt-get install -qq -y wget docker jq >/dev/null 2>&1
+  build:
+    commands:
+    - ./provisioning/devops-provision.sh
+    - ./provisioning/container-repo-create.sh
+    - ./provisioning/dotnet-worker-create.sh
+    # Dotnet builds
+    - ./terraform/builds/devops-jobs-dotnet.sh https://github.com/OluOrija/SprintZero.git
